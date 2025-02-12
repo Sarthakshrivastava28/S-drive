@@ -82,6 +82,7 @@
           <h1> <%= file.originalName %></h1>
           <a href="/download/<%= file.path%>"download="<%=file.originalName%>">
             <i class="ri-import-line"></i>
+            <span class="text-sm">Download</span>
 
           </a>
         </div>
@@ -164,8 +165,39 @@
         }
       }
 
+
+
       // Fetch files on page load
       fetchFiles();
+
+
+      async function handleDownload(filePath, originalName) {
+    try {
+        const response = await fetch(`/download/${filePath}`);
+        
+        if (!response.ok) {
+            throw new Error('Download failed');
+        }
+
+        // Get the blob from response
+        const blob = await response.blob();
+        
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = originalName; // Use the original filename
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        a.remove();
+    } catch (error) {
+        console.error('Download error:', error);
+        alert('Error downloading file. Please try again.');
+    }
+}
 
         
     </script>

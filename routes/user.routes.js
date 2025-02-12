@@ -38,7 +38,7 @@ router.post(
         password:hashPassword
     })
 
-    res.json(newUSer)
+    res.redirect('/user/login')
 
 
   }
@@ -98,7 +98,8 @@ async    (req,res)=>{
 
 res.cookie('token',token)
 
-res.send(`logged in`)
+res.redirect('/home') 
+
 
 
 
