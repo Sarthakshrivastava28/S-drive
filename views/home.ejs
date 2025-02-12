@@ -18,7 +18,7 @@
     <main class="p-4 ">
       <button
       onclick="showpopup()"
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded gap-4"
       >
         upload file
       </button>
@@ -73,6 +73,27 @@
           </button>
         </div>
       </div>
+
+      <div class="files mt-3 flex-col gap-4">
+        <% files.forEach((file)=>{%>
+
+        
+        <div class="p-2 mt-3 cursor-pointer rounded-md bg-gray-400 flex justify-between">
+          <h1> <%= file.originalName %></h1>
+          <a href="/download/<%= file.path%>"download="<%=file.originalName%>">
+            <i class="ri-import-line"></i>
+
+          </a>
+        </div>
+        <%})%>
+
+
+        
+      </div>
+
+
+
+
     </main>
     
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
@@ -85,6 +106,66 @@
             document.querySelector('.pop').style.display='none'
 
         }
+
+        const uploadForm = document.getElementById('uploadForm');
+      const fileInput = document.getElementById('dropzone-file');
+
+      uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const file = fileInput.files[0];
+        if (!file) {
+          alert('Please select a file to upload.');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await fetch('/upload-file', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert('File uploaded successfully!');
+            hidepopup();
+            fetchFiles(); // Refresh the file list
+          } else {
+            alert('Error uploading file: ' + result.message);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while uploading the file.');
+        }
+      });
+
+      // Fetch and display uploaded files
+      async function fetchFiles() {
+        try {
+          const response = await fetch('/files');
+          const files = await response.json();
+
+          const fileList = document.getElementById('fileList');
+          fileList.innerHTML = files
+            .map(
+              (file) => `
+                <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow mb-4">
+                  <img src="${file.url}" alt="${file.name}" class="w-32 h-32 object-cover">
+                  <p class="text-gray-800 dark:text-gray-200">${file.name}</p>
+                </div>
+              `
+            )
+            .join('');
+        } catch (error) {
+          console.error('Error fetching files:', error);
+        }
+      }
+
+      // Fetch files on page load
+      fetchFiles();
 
         
     </script>
